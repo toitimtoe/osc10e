@@ -16,10 +16,11 @@
 #include <linux/proc_fs.h>
 #include <linux/jiffies.h>
 #include <asm/uaccess.h>
+#include <asm/param.h>
 
 #define BUFFER_SIZE 128
 
-#define PROC_NAME "jiffies"
+#define PROC_NAME "seconds"
 
 /**
  * Function prototypes
@@ -31,6 +32,8 @@ static struct file_operations proc_ops = {
         .read = proc_read,
 };
 
+unsigned long start_jiffies;
+unsigned long elapsed_jiffies;
 
 /* This function is called when the module is loaded. */
 static int proc_init(void)
@@ -40,7 +43,7 @@ static int proc_init(void)
         // the following function call is a wrapper for
         // proc_create_data() passing NULL as the last argument
         proc_create(PROC_NAME, 0, NULL, &proc_ops);
-
+        start_jiffies = jiffies;
         printk(KERN_INFO "/proc/%s created\n", PROC_NAME);
 
 	return 0;
@@ -83,7 +86,8 @@ static ssize_t proc_read(struct file *file, char __user *usr_buf, size_t count, 
 
         completed = 1;
 
-        rv = sprintf(buffer, "%lu\n", jiffies);
+        elapsed_jiffies = jiffies - start_jiffies;
+        rv = sprintf(buffer, "%lu\n", elapsed_jiffies / HZ);
 
         // copies the contents of buffer to userspace usr_buf
         copy_to_user(usr_buf, buffer, rv);
