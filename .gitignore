@@ -2,3 +2,12 @@
 a.out
 *.class
 *.cmd
+
+# compiled files
+*.o
+*.ko
+*.mod.c
+*.mod.o
+**/Module.symvers
+**/modules.order
+**/.tmp_versions
